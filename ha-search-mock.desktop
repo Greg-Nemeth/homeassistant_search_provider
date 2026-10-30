@@ -1,0 +1,9 @@
+[Desktop Entry]
+    Version=1.0
+    Type=Application
+    Name=Home Assistant
+    Icon=network-server-symbolic
+    Exec=xdg-open http://192.168.178.132:8123
+    NoDisplay=true
+    Categories=Network;Utility;
+    

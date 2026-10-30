@@ -1,0 +1,12 @@
+{
+  "name": "HASP",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:24-trixie",
+  "updateContentCommand": "/bin/bash -c 'sudo apt-get update && sudo apt-get install -y --no-install-recommends gjs libgirepository-2.0-dev gir1.2-glib-2.0 gir1.2-gio-2.0 gir1.2-folks-0.7 libfolks-dev'",
+  "customizations": {
+    "zed": {
+      "extensions": []
+    }
+  },
+  "postCreateCommand": "npm init -y && npm install --save-dev @girs/gjs @girs/gio-2.0 @girs/glib-2.0 @girs/folks-0.7  @cucumber/cucumber",
+  "remoteUser": "node"
+}

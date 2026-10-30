@@ -1,0 +1,7 @@
+{
+  "name": "Home Assistant search provider",
+  "description": "Control home assistant from your overview",
+  "uuid": "hasp@greg.rum-and-code",
+  "settings-schema": "org.gnome.shell.extensions.hasp",
+  "shell-version": [ "50" ]
+}

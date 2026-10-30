@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.hasp" path="/org/gnome/shell/extensions/hasp/">
+    <key name="server-address" type="s">
+      <default>"http://homeassistant:8123"</default>
+    </key>
+    <key name="api-key" type="s">
+      <default>" "</default>
+    </key>
+    <key name="lights" type="b">
+      <default>true</default>
+    </key>
+    <key name="switches" type="b">
+      <default>true</default>
+    </key>
+    <key name="sensors" type="b">
+      <default>true</default>
+    </key>
+  </schema>
+</schemalist>

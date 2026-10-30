@@ -1,0 +1,23 @@
+{
+  "name": "todo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_OPTIONS='--import ./register-hooks.js' cucumber-js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@cucumber/cucumber": "^13.2.1",
+    "@girs/clutter-14": "^5.2.0",
+    "@girs/gio-2.0": "^5.2.0",
+    "@girs/gjs": "^5.2.0",
+    "@girs/glib-2.0": "^5.2.0",
+    "@girs/gnome-shell": "^50.0.4",
+    "@girs/st-14": "^5.2.0",
+    "sinon": "^22.1.0"
+  }
+}
