@@ -3,9 +3,6 @@ import St from "gi://St";
 import Gio from "gi://Gio";
 import GioUnix from "gi://GioUnix";
 import GLib from "gi://GLib";
-import * as Search from "resource:///org/gnome/shell/ui/search.js";
-import Clutter from "gi://Clutter";
-import Pango from "gi://Pango";
 
 export default class SearchProvider {
     constructor(opts) {
@@ -49,6 +46,19 @@ export default class SearchProvider {
         }
     }
 
+    destroy() {
+        if (this._httpSession) {
+            this._httpSession.abort();
+            this._httpSession = null;
+        }
+        if (this._desktopPath) {
+            GLib.unlink(this._desktopPath);
+            this._desktopPath = null;
+        }
+        this._settings = null;
+        this._extension = null;
+    }
+
     get appInfo() {
         const appInfo = GioUnix.DesktopAppInfo.new_from_filename(this._desktopPath);
         if (appInfo) {
@@ -73,7 +83,7 @@ export default class SearchProvider {
     }
 
     launchSearch(terms) {
-        console.log(`Opening Home Assistant in browser...`);
+        console.debug("Opening Home Assistant in browser...");
         try {
             // Opens the default system browser to your Home Assistant URL
             Gio.AppInfo.launch_default_for_uri(this.haUrl, null);
@@ -108,7 +118,7 @@ export default class SearchProvider {
             cancellable: Gio.Cancellable.get_current(),
             body: { entity_id: result },
         })
-            .then((res) => console.log(`Successfully toggled ${result}:`, res))
+            .then((res) => console.debug(`Successfully toggled ${result}:`, res))
             .catch((err) => console.error(`Failed to toggle ${result}:`, err));
     }
 

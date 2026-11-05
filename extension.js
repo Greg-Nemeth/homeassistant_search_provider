@@ -1,7 +1,6 @@
 import SearchProvider from "./SearchProvider.js";
 import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
-import St from "gi://St";
 
 export default class TodoExtension extends Extension {
     enable() {
@@ -15,6 +14,8 @@ export default class TodoExtension extends Extension {
 
     disable() {
         Main.overview.searchController.removeProvider(this._provider);
+        this._provider?.destroy();
         this._provider = null;
+        this._settings = null;
     }
 }

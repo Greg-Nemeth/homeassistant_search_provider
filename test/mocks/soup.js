@@ -95,6 +95,8 @@ export class MockSession {
         }
         return res.bytes;
     }
+
+    abort() {}
 }
 
 export default {

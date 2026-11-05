@@ -34,4 +34,5 @@ export default {
     get_user_data_dir: () => '/tmp/hasp-test',
     mkdir_with_parents: () => true,
     file_set_contents: () => true,
+    unlink: () => 0,
 };

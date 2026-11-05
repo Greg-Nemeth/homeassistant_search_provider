@@ -7,7 +7,7 @@ HASP is a GNOME Shell search provider extension that allows users to quickly sea
 ## Features
 
 - **GNOME Overview Integration**: Search for smart home devices by typing directly in the GNOME search bar (`Super` key).
-- **Direct Device Control**: Instantly toggle devices (lights, switches, etc.) with a single click or `Enter`.
+- **Direct Device Control (Default Action: Toggle)**: Selecting a result (single click or `Enter`) currently sends a `toggle` action (`/api/services/{domain}/toggle`) to the entity. Support for additional domain-specific actions is planned for future releases.
 - **Domain Filtering**: Choose which entity categories (e.g., lights, switches, sensors) appear in your search results.
 - **Fast Search Prioritization**: Move Home Assistant results to the top of GNOME search directly from the extension preferences.
 - **Quick Web Launch**: Jump straight into the Home Assistant web dashboard from search.
@@ -162,5 +162,5 @@ Upcoming features to implement using BDD:
 - [ ] **Friendly Names**: Display entity `attributes.friendly_name` instead of raw entity IDs.
 - [ ] **State & Area in Description**: Show current state (e.g. "On • Living Room", "21.5 °C") in search result descriptions.
 - [ ] **Dynamic Symbolic Icons**: Render domain- and state-specific icons (`lamp-symbolic.svg`, `switch-left-symbolic.svg`, etc.) from [`icons/`](./icons/).
-- [ ] **Additional Domains**: Support `climate`, `scene`, `script`, and `media_player`.
+- [ ] **Additional Domains & Actions**: Support `climate`, `scene`, `script`, and `media_player`, along with domain-specific activation actions beyond the default `toggle`.
 - [ ] **State Caching / Debounce**: Cache `/api/states` responses with a short TTL to minimize network overhead on every keystroke.

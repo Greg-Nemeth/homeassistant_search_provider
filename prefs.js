@@ -43,6 +43,8 @@ export default class Preferences extends ExtensionPreferences {
             valign: Gtk.Align.CENTER,
         });
 
+        let prioritizeTimeoutId = null;
+
         prioritizeSearchBtn.connect("clicked", () => {
             const searchSettings = new Gio.Settings({
                 schema_id: "org.gnome.desktop.search-providers",
@@ -55,8 +57,12 @@ export default class Preferences extends ExtensionPreferences {
             searchSettings.set_strv("sort-order", currentOrder);
 
             prioritizeSearchBtn.label = "Done!";
-            setTimeout(() => {
+            if (prioritizeTimeoutId) {
+                clearTimeout(prioritizeTimeoutId);
+            }
+            prioritizeTimeoutId = setTimeout(() => {
                 prioritizeSearchBtn.label = "Move to Top";
+                prioritizeTimeoutId = null;
             }, 2000);
         });
 
@@ -160,6 +166,14 @@ export default class Preferences extends ExtensionPreferences {
 
         const httpSession = new Soup.Session();
         const textDecoder = new TextDecoder();
+
+        window.connect?.("close-request", () => {
+            if (prioritizeTimeoutId) {
+                clearTimeout(prioritizeTimeoutId);
+                prioritizeTimeoutId = null;
+            }
+            httpSession.abort();
+        });
 
         scanBtn.connect("clicked", () => {
             const haUrl = settings
