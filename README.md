@@ -76,17 +76,48 @@ The project uses Node.js 24 ESM module customization hooks:
 
 ### Running Tests
 
-Inside your devcontainer terminal:
+Inside your devcontainer or Distrobox container:
 
 ```bash
 npm test
 ```
 
-Or from your host machine via Docker:
+Or from your host machine via Distrobox:
 
 ```bash
-docker exec -w /workspaces/hasp <container_id> npm test
+distrobox enter hasp -- npm test
 ```
+
+---
+
+## Packaging & Distribution (`extensions.gnome.org`)
+
+### Local Build & Packaging
+
+You can validate `metadata.json`, compile GSettings schemas, and package a clean `.shell-extension.zip` archive ready for upload to [extensions.gnome.org](https://extensions.gnome.org/):
+
+```bash
+# Package only (creates dist/hasp@greg.rum-and-code.shell-extension.zip)
+distrobox enter hasp -- npm run pack
+
+# Run BDD test suite + package
+distrobox enter hasp -- npm run build
+
+# Package and install directly to ~/.local/share/gnome-shell/extensions/
+distrobox enter hasp -- npm run install:local
+```
+
+### GitHub Actions Pipeline
+
+The repository includes a CI/CD workflow in [`.github/workflows/package.yml`](./.github/workflows/package.yml):
+
+- **On Push / Pull Request to `main` (or manual `workflow_dispatch`)**:
+  1. Installs Node.js 24, `glib-compile-schemas`, and `zip`.
+  2. Runs the Cucumber BDD test suite (`npm test`).
+  3. Validates `metadata.json` and GSettings schemas, then builds `dist/hasp@greg.rum-and-code.shell-extension.zip` (`npm run pack`).
+  4. Uploads the `.shell-extension.zip` bundle as a downloadable GitHub Actions workflow artifact (`hasp-gnome-shell-extension`).
+- **On Version Tags (`v*`, e.g. `v1.0.0`)**:
+  - Automatically creates/updates the GitHub Release and attaches `hasp@greg.rum-and-code.shell-extension.zip` as a release asset.
 
 ---
 

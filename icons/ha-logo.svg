@@ -1,36 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="presentation">
-  <style>
-    .dot-left { animation: pulse-left 1300ms 350ms linear infinite; }
-    .dot-right { animation: pulse-right 1300ms 350ms linear infinite; }
-    .dot-top { animation: pulse-top 1300ms 350ms linear infinite; }
-    @keyframes pulse-left {
-      0% { transform: translate(50px, 69.634804px) scale(1); animation-timing-function: cubic-bezier(.39, .575, .565, 1); }
-      15.384615% { transform: translate(50px, 69.634804px) scale(1.3); animation-timing-function: cubic-bezier(.39, .575, .565, 1); }
-      38.461538%, 100% { transform: translate(50px, 69.634804px) scale(1); }
-    }
-    @keyframes pulse-right {
-      0%, 15.384615% { transform: translate(90px, 58.634798px) scale(1); }
-      15.384615% { animation-timing-function: cubic-bezier(.39, .575, .565, 1); }
-      30.769231% { transform: translate(90px, 58.634798px) scale(1.3); animation-timing-function: cubic-bezier(.39, .575, .565, 1); }
-      53.846154%, 100% { transform: translate(90px, 58.634798px) scale(1); }
-    }
-    @keyframes pulse-top {
-      0%, 30.769231% { transform: translate(70px, 37.6348px) scale(1); }
-      30.769231% { animation-timing-function: cubic-bezier(.39, .575, .565, 1); }
-      46.153846% { transform: translate(70px, 37.6348px) scale(1.3); animation-timing-function: cubic-bezier(.39, .575, .565, 1); }
-      69.230769%, 100% { transform: translate(70px, 37.6348px) scale(1); }
-    }
-  </style>
-  <g transform="matrix(.938408 0 0 .93841 -5.688557 -13.572944)">
-    <path fill="#18bcf2" d="M73.5367 13.0937 106.463 46.0524v.0033C108.41 48.0043 110 51.848 110 54.6007v30.0292c0 2.7527-2.25 5.0049-5 5.0049l-70-.0034c-2.75 0-5-2.2522-5-5.0048V54.5974c0-2.7527 1.5933-6.5998 3.5367-8.545l32.93-32.9587c1.9433-1.9452 5.1266-1.9452 7.07 0Z" transform="matrix(1.598452 0 0 1.598452 -41.89164 -.937304)"/>
-    <g mask="url(#logo-mask)" transform="matrix(1.598452 0 0 1.598452 -41.89164 -.937311)">
-      <path d="m70 89.6348-20-20M70 89.6348v-52M90 58.1348l-20 20" fill="none" stroke="#f2f4f9" stroke-linecap="round" stroke-width="6"/>
-      <circle class="dot-left" r="7" fill="#f2f4f9" transform="translate(50 69.634804)"/>
-      <circle class="dot-right" r="7" fill="#f2f4f9" transform="translate(90 58.634798)"/>
-      <circle class="dot-top" r="7" fill="#f2f4f9" transform="translate(70 37.6348)"/>
-    </g>
-    <mask id="logo-mask" x="-150%" y="-150%" width="400%" height="400%" mask-type="luminance">
-      <path fill="#f2f4f9" d="M73.5367 13.0937 106.463 46.0524v.0033C108.41 48.0043 110 51.848 110 54.6007v30.0292c0 2.7527-2.25 5.0049-5 5.0049l-70-.0034c-2.75 0-5-2.2522-5-5.0048V54.5974c0-2.7527 1.5933-6.5998 3.5367-8.545l32.93-32.9587c1.9433-1.9452 5.1266-1.9452 7.07 0Z"/>
-    </mask>
+  <!-- Custom smart-home icon: Outlined House + Connected Graph (Nodes & Vertices) -->
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3584e4"/>
+      <stop offset="100%" stop-color="#1c71d8"/>
+    </linearGradient>
+  </defs>
+  <!-- Rounded square badge -->
+  <rect x="10" y="10" width="100" height="100" rx="24" fill="url(#bg-grad)"/>
+  <!-- House roof and walls -->
+  <path d="M60 24 L24 53 H35 V88 C35 91.3 37.7 94 41 94 H79 C82.3 94 85 91.3 85 88 V53 H96 L60 24 Z"
+        fill="none" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Graph edges (connections between vertices) -->
+  <g stroke="#ffffff" stroke-width="3.5" stroke-linecap="round">
+    <line x1="60" y1="48" x2="46" y2="66"/>
+    <line x1="60" y1="48" x2="74" y2="63"/>
+    <line x1="46" y1="66" x2="74" y2="63"/>
+    <line x1="46" y1="66" x2="62" y2="80"/>
+    <line x1="74" y1="63" x2="62" y2="80"/>
+  </g>
+  <!-- Graph nodes (vertices) -->
+  <g fill="#ffffff">
+    <circle cx="60" cy="48" r="5"/>
+    <circle cx="46" cy="66" r="5"/>
+    <circle cx="74" cy="63" r="5"/>
+    <circle cx="62" cy="80" r="5"/>
   </g>
 </svg>

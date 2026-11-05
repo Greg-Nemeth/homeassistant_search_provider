@@ -1,0 +1,72 @@
+name: Package Extension
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-package:
+    name: Test & Package EGO Bundle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libglib2.0-bin zip unzip
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Run BDD tests
+        run: npm test
+
+      - name: Package extension for extensions.gnome.org
+        run: npm run pack
+
+      - name: Upload extension package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hasp-gnome-shell-extension
+          path: dist/*.shell-extension.zip
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: build-and-package
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download extension package artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hasp-gnome-shell-extension
+          path: dist
+
+      - name: Attach extension zip to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.shell-extension.zip
+          generate_release_notes: true
