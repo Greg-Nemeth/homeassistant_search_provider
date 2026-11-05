@@ -15,6 +15,7 @@ export class QueryParser {
         const entityTerms = [];
         const actionTokens = [];
         let hasAction = false;
+        // TODO lots of if , lets see if can refactor to use statemachine
 
         for (const rawTerm of terms) {
             if (!rawTerm) continue;

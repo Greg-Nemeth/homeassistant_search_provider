@@ -1,6 +1,6 @@
 {
   "name": "Home Assistant search provider",
-  "description": "Search and control Home Assistant entities from the GNOME Overview. Selecting a result toggles the entity (more actions coming soon). (Unofficial)",
+  "description": "Search and control Home Assistant entities from the GNOME Overview. Activate results to toggle/trigger devices, or use '!' tokens (e.g. loft!40%, ac!22c) to expand and set specific actions and attributes. (Unofficial)",
   "uuid": "hasp@greg.rum-and-code",
   "settings-schema": "org.gnome.shell.extensions.hasp",
   "url": "https://github.com/Greg-Nemeth/homeassistant_search_provider",
