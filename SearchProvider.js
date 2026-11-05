@@ -148,20 +148,7 @@ export default class SearchProvider {
 
     getInitialResultSet(terms, cancellable) {
         const lowerTerms = terms.map((t) => t.toLowerCase());
-        const schema = this._settings.settings_schema;
-
-        // 2. Get all keys defined in your xml schema file
-        const allKeys = schema.list_keys();
-
-        // 3. Filter for keys where the type matches GVariant "b" (boolean)
-        const booleanKeys = allKeys.filter((keyName) => {
-            const keyInfo = schema.get_key(keyName);
-            const valueType = keyInfo.get_value_type();
-            return (
-                valueType.equal(GLib.VariantType.new("b")) &&
-                this._settings.get_boolean(keyName)
-            );
-        });
+        const enabledDomains = this._settings.get_strv("enabled-domains");
 
         return this.fetch(`${this.haUrl}/api/states`, {
             method: "GET",
@@ -176,7 +163,7 @@ export default class SearchProvider {
 
                 return array
                     .filter((e) =>
-                        booleanKeys.some((t) => t.match(e.entity_id.split(".")[0])),
+                        enabledDomains.includes(e.entity_id.split(".")[0]),
                     )
                     .filter((id) =>
                         lowerTerms.every((term) =>

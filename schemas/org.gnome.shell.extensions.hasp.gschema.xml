@@ -5,16 +5,13 @@
       <default>"http://homeassistant:8123"</default>
     </key>
     <key name="api-key" type="s">
-      <default>" "</default>
+      <default>""</default>
     </key>
-    <key name="lights" type="b">
-      <default>true</default>
+    <key name="available-domains" type="as">
+      <default>[]</default>
     </key>
-    <key name="switches" type="b">
-      <default>true</default>
-    </key>
-    <key name="sensors" type="b">
-      <default>true</default>
+    <key name="enabled-domains" type="as">
+      <default>[]</default>
     </key>
   </schema>
 </schemalist>

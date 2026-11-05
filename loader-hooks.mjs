@@ -6,8 +6,11 @@ const MOCK_MAP = new Map([
     ['gi://GioUnix', './test/mocks/giounix.js'],
     ['gi://Gio', './test/mocks/gio.js'],
     ['gi://St', './test/mocks/st.js'],
+    ['gi://Adw', './test/mocks/adw.js'],
+    ['gi://Gtk', './test/mocks/gtk.js'],
     ['resource:///org/gnome/shell/ui/main.js', './test/mocks/shell-main.js'],
     ['resource:///org/gnome/shell/extensions/extension.js', './test/mocks/shell-extension.js'],
+    ['resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js', './test/mocks/shell-prefs.js'],
     ['resource:///org/gnome/shell/ui/search.js', './test/mocks/shell-search.js'],
 ]);
 

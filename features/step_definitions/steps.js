@@ -1,12 +1,14 @@
 import { Given, When, Then, Before } from '@cucumber/cucumber';
 import assert from 'node:assert/strict';
 import SearchProvider from '../../SearchProvider.js';
+import Preferences from '../../prefs.js';
 import { createMockSettings, createMockExtension } from '../../test/mocks/settings-helper.js';
 import { mockState } from '../../test/mocks/mock-state.js';
 import Gio from 'gi://Gio';
 
 let settings;
 let provider;
+let prefsWindow;
 let searchResults = [];
 let metadataResults = [];
 
@@ -17,6 +19,7 @@ Before(() => {
         extension: createMockExtension(),
         settings,
     });
+    prefsWindow = null;
     searchResults = [];
     metadataResults = [];
 });
@@ -38,11 +41,73 @@ Given('the following Home Assistant entities exist:', (dataTable) => {
 });
 
 Given('the {string} domain is enabled', (domain) => {
-    settings.set_boolean(domain, true);
+    const enabled = new Set(settings.get_strv('enabled-domains'));
+    enabled.add(domain);
+    settings.set_strv('enabled-domains', [...enabled]);
 });
 
 Given('the {string} domain is disabled', (domain) => {
-    settings.set_boolean(domain, false);
+    const enabled = settings.get_strv('enabled-domains').filter((d) => d !== domain);
+    settings.set_strv('enabled-domains', enabled);
+});
+
+Given('the user opens the preferences window', () => {
+    prefsWindow = {
+        pages: [],
+        add(page) {
+            this.pages.push(page);
+        },
+    };
+    const prefs = new Preferences({ settings });
+    prefs.fillPreferencesWindow(prefsWindow);
+});
+
+When('the user clicks the Scan Domains button', async () => {
+    const page = prefsWindow.pages[0];
+    const connectionGroup = page.groups.find((g) => g.title === 'Connection Settings');
+    const scanRow = connectionGroup.rows.find((r) => r.title === 'Scan Domains');
+    assert.ok(scanRow, 'Scan Domains row not found in Connection Settings group');
+    const scanBtn = scanRow.suffixes[0];
+    assert.ok(scanBtn, 'Scan button not found on Scan Domains row');
+    scanBtn.click();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+});
+
+When('the user toggles the {string} domain switch to enabled', (domain) => {
+    const page = prefsWindow.pages[0];
+    const servicesGroup = page.groups.find((g) => g.title === 'Services');
+    const domainRow = servicesGroup.rows.find((r) => r.get_title() === domain);
+    assert.ok(domainRow, `SwitchRow for domain "${domain}" not found`);
+    domainRow.set_active(true);
+});
+
+Then('the services group should contain {int} domain switches', (expectedCount) => {
+    const page = prefsWindow.pages[0];
+    const servicesGroup = page.groups.find((g) => g.title === 'Services');
+    assert.ok(servicesGroup, 'Services group not found');
+    assert.equal(servicesGroup.rows.length, expectedCount);
+});
+
+Then('the services group should contain the following domain switches:', (dataTable) => {
+    const page = prefsWindow.pages[0];
+    const servicesGroup = page.groups.find((g) => g.title === 'Services');
+    assert.ok(servicesGroup, 'Services group not found');
+    const actual = servicesGroup.rows.map((row) => ({
+        domain: row.get_title(),
+        active: String(row.get_active()),
+    }));
+    const expected = dataTable.hashes();
+    assert.deepEqual(actual, expected);
+});
+
+Then('a GET request should be sent to {string}', (expectedUrl) => {
+    const request = mockState.requests.find(
+        (r) => r.method === 'GET' && r.url === expectedUrl
+    );
+    assert.ok(
+        request,
+        `Expected GET request to ${expectedUrl}, but recorded requests were: ${JSON.stringify(mockState.requests)}`
+    );
 });
 
 Given('the search provider has matching results:', (dataTable) => {

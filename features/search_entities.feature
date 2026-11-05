@@ -15,34 +15,34 @@ Feature: Search Home Assistant Entities
       | climate.living_room       | heat  | AC				|
 
   Scenario: Searching by a single term matches entity IDs case-insensitively
-    Given the "lights" domain is enabled
+    Given the "light" domain is enabled
     When the user searches for "loft"
     Then the search results should be:
       | entity_id                 | state |	friendly_name	|
       | light.loft_lavalamp       | off   | Lava Lamp		|
 
   Scenario: Searching with multiple terms matches all terms
-    Given the "lights" domain is enabled
+    Given the "light" domain is enabled
     When the user searches for "living ceiling"
     Then the search results should be:
       | entity_id                 | state |	friendly_name	|
       | light.living_room_ceiling | on    |	Living Room     |
 
   Scenario: Entities from disabled domains are excluded
-    Given the "lights" domain is enabled
-    And the "switches" domain is disabled
+    Given the "light" domain is enabled
+    And the "switch" domain is disabled
     When the user searches for "coffee"
     Then the search results should be empty
 
   Scenario: Entities from unsupported domains are excluded
-    Given the "lights" domain is enabled
-    And the "switches" domain is enabled
+    Given the "light" domain is enabled
+    And the "switch" domain is enabled
     When the user searches for "climate"
     Then the search results should be empty
 
   Scenario: Search results are capped by maximum results
-    Given the "lights" domain is enabled
-    And the "switches" domain is enabled
+    Given the "light" domain is enabled
+    And the "switch" domain is enabled
     When the user searches for "l"
     And the search provider limits results to 1
     Then exactly 1 result should be returned
