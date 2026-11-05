@@ -18,13 +18,15 @@ Feature: Search Home Assistant Entities
     Given the "lights" domain is enabled
     When the user searches for "loft"
     Then the search results should be:
-      | light.loft_lavalamp |
+      | entity_id                 | state |	friendly_name	|
+      | light.loft_lavalamp       | off   | Lava Lamp		|
 
   Scenario: Searching with multiple terms matches all terms
     Given the "lights" domain is enabled
     When the user searches for "living ceiling"
     Then the search results should be:
-      | light.living_room_ceiling |
+      | entity_id                 | state |	friendly_name	|
+      | light.living_room_ceiling | on    |	Living Room     |
 
   Scenario: Entities from disabled domains are excluded
     Given the "lights" domain is enabled

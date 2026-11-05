@@ -73,7 +73,8 @@ When('the user launches the search provider', () => {
 });
 
 Then('the search results should be:', (dataTable) => {
-    const expected = dataTable.raw().map((row) => row[0]);
+    // const expected = dataTable.raw().map((row) => row[0]);
+    const expected = dataTable.hashes();
     assert.deepEqual(searchResults, expected);
 });
 
