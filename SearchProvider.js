@@ -95,7 +95,6 @@ export default class SearchProvider {
     }
 
     activateResult(result, terms) {
-        console.log(`activateResult(${result})`);
 
         // result is "light.loft_lavalamp"
         const [domain] = result.split(".");
@@ -118,18 +117,17 @@ export default class SearchProvider {
     }
 
     getResultMetas(results, cancellable) {
-        console.error(`createResultMetas(${results})`);
         return new Promise((resolve, reject) => {
             const cancelledId = cancellable.connect(() =>
                 reject(new Error("Operation Cancelled")),
             );
 
-            const resultMetas = results.map((entityId) => {
+            const resultMetas = results.map((entity) => {
                 return {
-                    id: entityId,
-                    name: entityId,
-                    description: entityId,
-                    clipboardText: entityId,
+                    id: entity.entity_id,
+                    name: entity.friendly_name,
+                    description: entity.entity_id,
+                    clipboardText: entity.entity_id,
                     createIcon: (size) =>
                         new St.Icon({
                             icon_name: "dialog-information",
@@ -176,17 +174,20 @@ export default class SearchProvider {
                     throw new Error("Search Cancelled");
                 }
 
-                // console.error(`in getInitialResultset: ${JSON.stringify(array.map(e => e.entity_id))}`);
                 return array
-                    .map((elem) => elem.entity_id)
-                    .filter((id) =>
-                        booleanKeys.some((t) => t.match(id.split(".")[0])),
+                    .filter((e) =>
+                        booleanKeys.some((t) => t.match(e.entity_id.split(".")[0])),
                     )
                     .filter((id) =>
                         lowerTerms.every((term) =>
-                            id.toLowerCase().includes(term),
+                            id.entity_id.toLowerCase().includes(term),
                         ),
-                    );
+                    )
+					.map(r => ({
+						entity_id: r.entity_id,
+						friendly_name: r.attributes.friendly_name,
+                        state: r.state
+					}));
             })
             .catch((err) => {
                 if (!cancellable.is_cancelled()) {

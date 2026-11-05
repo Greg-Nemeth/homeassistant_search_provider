@@ -33,6 +33,7 @@ Given('the following Home Assistant entities exist:', (dataTable) => {
     mockState.entities = dataTable.hashes().map((row) => ({
         entity_id: row.entity_id,
         state: row.state,
+        attributes: {friendly_name: row.friendly_name}
     }));
 });
 
@@ -45,7 +46,7 @@ Given('the {string} domain is disabled', (domain) => {
 });
 
 Given('the search provider has matching results:', (dataTable) => {
-    searchResults = dataTable.raw().map((row) => row[0]);
+    searchResults = dataTable.hashes();
 });
 
 When('the user searches for {string}', async (termsString) => {
@@ -108,9 +109,9 @@ Then('the request body should be:', (expectedBodyString) => {
     assert.deepEqual(request.body, expected);
 });
 
-Then('the metadata for {string} should have:', (entityId, dataTable) => {
-    const meta = metadataResults.find((m) => m.id === entityId);
-    assert.ok(meta, `No metadata found for ${entityId}`);
+Then('the metadata for {string} should have:', (entity, dataTable) => {
+    const meta = metadataResults.find((m) => m.id === entity);
+    assert.ok(meta, `No metadata found for ${entity}`);
     for (const [key, expectedValue] of dataTable.raw()) {
         assert.equal(
             meta[key],

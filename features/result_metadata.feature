@@ -9,10 +9,11 @@ Feature: Result Metadata Formatting
 
   Scenario: Metadata contains identifier and basic display attributes
     Given the search provider has matching results:
-      | light.loft_lavalamp |
+      | entity_id 			| friendly_name | state |
+      | light.loft_lavalamp | Lava Lamp		| on	|
     When the overview requests metadata for the results
     Then the metadata for "light.loft_lavalamp" should have:
       | id            | light.loft_lavalamp |
-      | name          | light.loft_lavalamp |
+      | name          | Lava Lamp		    |
       | description   | light.loft_lavalamp |
       | clipboardText | light.loft_lavalamp |

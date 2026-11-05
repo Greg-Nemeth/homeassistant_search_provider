@@ -7,12 +7,12 @@ Feature: Search Home Assistant Entities
     Given Home Assistant server is configured at "http://homeassistant:8123"
     And a valid API key "test-api-key" is set
     And the following Home Assistant entities exist:
-      | entity_id                 | state |
-      | light.living_room_ceiling | on    |
-      | light.loft_lavalamp       | off   |
-      | switch.coffee_maker       | off   |
-      | sensor.outside_temp       | 18.5  |
-      | climate.living_room       | heat  |
+      | entity_id                 | state |	friendly_name	|
+      | light.living_room_ceiling | on    |	Living Room     |
+      | light.loft_lavalamp       | off   | Lava Lamp		|
+      | switch.coffee_maker       | off   | Coffee			|
+      | sensor.outside_temp       | 18.5  | Weather			|
+      | climate.living_room       | heat  | AC				|
 
   Scenario: Searching by a single term matches entity IDs case-insensitively
     Given the "lights" domain is enabled
