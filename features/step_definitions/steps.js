@@ -119,6 +119,11 @@ When('the user searches for {string}', async (termsString) => {
     searchResults = await provider.getInitialResultSet(terms, new Gio.Cancellable());
 });
 
+When('the user refines the search to {string}', async (termsString) => {
+    const terms = termsString.split(' ').filter(Boolean);
+    searchResults = await provider.getSubsearchResultSet(searchResults, terms, new Gio.Cancellable());
+});
+
 When('the search provider limits results to {int}', (maxResults) => {
     searchResults = provider.filterResults(searchResults, maxResults);
 });
@@ -138,8 +143,7 @@ When('the user launches the search provider', () => {
 });
 
 Then('the search results should be:', (dataTable) => {
-    // const expected = dataTable.raw().map((row) => row[0]);
-    const expected = dataTable.hashes();
+    const expected = dataTable.raw().map((row) => row[0]);
     assert.deepEqual(searchResults, expected);
 });
 

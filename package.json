@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_OPTIONS='--import ./register-hooks.js' cucumber-js",
+    "test": "mkdir -p reports && NODE_OPTIONS='--import ./register-hooks.js' cucumber-js",
     "compile:schemas": "glib-compile-schemas --strict schemas/",
     "pack": "bash ./scripts/pack.sh",
     "build": "npm test && npm run pack",

@@ -1,4 +1,4 @@
-import Soup from "gi://Soup?version=3.0";
+import Soup from "gi://Soup";
 import St from "gi://St";
 import Gio from "gi://Gio";
 import GioUnix from "gi://GioUnix";
@@ -12,6 +12,7 @@ export default class SearchProvider {
         this._text_encoder = new TextEncoder();
         this._text_decoder = new TextDecoder();
         this._settings = opts.settings;
+        this._entityCache = new Map();
         this._ensureDesktopFile();
     }
 
@@ -55,6 +56,8 @@ export default class SearchProvider {
             GLib.unlink(this._desktopPath);
             this._desktopPath = null;
         }
+        this._entityCache?.clear();
+        this._entityCache = null;
         this._settings = null;
         this._extension = null;
     }
@@ -132,12 +135,13 @@ export default class SearchProvider {
                 reject(new Error("Operation Cancelled")),
             );
 
-            const resultMetas = results.map((entity) => {
+            const resultMetas = results.map((resultId) => {
+                const entity = this._entityCache?.get(resultId);
                 return {
-                    id: entity.entity_id,
-                    name: entity.friendly_name,
-                    description: entity.entity_id,
-                    clipboardText: entity.entity_id,
+                    id: resultId,
+                    name: entity?.friendly_name || resultId,
+                    description: resultId,
+                    clipboardText: resultId,
                     createIcon: (size) =>
                         new St.Icon({
                             icon_name: "dialog-information",
@@ -180,11 +184,14 @@ export default class SearchProvider {
                             id.entity_id.toLowerCase().includes(term),
                         ),
                     )
-					.map(r => ({
-						entity_id: r.entity_id,
-						friendly_name: r.attributes.friendly_name,
-                        state: r.state
-					}));
+                    .map((r) => {
+                        this._entityCache?.set(r.entity_id, {
+                            entity_id: r.entity_id,
+                            friendly_name: r.attributes?.friendly_name,
+                            state: r.state,
+                        });
+                        return r.entity_id;
+                    });
             })
             .catch((err) => {
                 if (!cancellable.is_cancelled()) {

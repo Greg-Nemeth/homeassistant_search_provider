@@ -40,6 +40,20 @@ jobs:
       - name: Run BDD tests
         run: npm test
 
+      - name: Publish BDD test summary
+        if: always()
+        run: node ./scripts/report-summary.mjs
+
+      - name: Upload BDD test reports (HTML & JUnit XML)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: bdd-test-reports
+          path: |
+            reports/cucumber-report.html
+            reports/cucumber-junit.xml
+          if-no-files-found: warn
+
       - name: Package extension for extensions.gnome.org
         run: npm run pack
 

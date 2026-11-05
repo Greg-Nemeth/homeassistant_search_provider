@@ -1,5 +1,11 @@
 {
     "default": {
+        "format": [
+            "progress",
+            "json:reports/cucumber-report.json",
+            "junit:reports/cucumber-junit.xml",
+            "html:reports/cucumber-report.html"
+        ],
         "formatOptions": {
             "snippetInterface": "synchronous"
         }
