@@ -1,5 +1,6 @@
 export const mockState = {
     entities: [],
+    services: [],
     requests: [],
     launchedUris: [],
     httpResponseStatus: 200,
@@ -7,6 +8,7 @@ export const mockState = {
 
     reset() {
         this.entities = [];
+        this.services = [];
         this.requests = [];
         this.launchedUris = [];
         this.httpResponseStatus = 200;

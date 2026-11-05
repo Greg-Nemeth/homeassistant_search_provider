@@ -58,7 +58,7 @@ mkdir -p "$DIST_DIR"
 mkdir -p "$STAGE_DIR/schemas" "$STAGE_DIR/icons"
 
 # Core extension runtime files
-cp extension.js SearchProvider.js prefs.js metadata.json "$STAGE_DIR/"
+cp extension.js SearchProvider.js QueryParser.js ActionRegistry.js prefs.js metadata.json "$STAGE_DIR/"
 
 # GSettings XML schema (extensions.gnome.org compiles schemas on install for GNOME 45+)
 cp schemas/*.gschema.xml "$STAGE_DIR/schemas/"

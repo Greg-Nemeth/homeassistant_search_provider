@@ -40,6 +40,26 @@ Given('the following Home Assistant entities exist:', (dataTable) => {
     }));
 });
 
+Given('the following Home Assistant entities exist with attributes:', (dataTable) => {
+    mockState.entities = dataTable.hashes().map((row) => {
+        const extraAttrs = row.attributes_json ? JSON.parse(row.attributes_json) : {};
+        return {
+            entity_id: row.entity_id,
+            state: row.state,
+            attributes: {
+                friendly_name: row.friendly_name,
+                ...extraAttrs,
+            },
+        };
+    });
+});
+
+Given('the Home Assistant {string} endpoint returns:', (endpoint, jsonString) => {
+    if (endpoint === '/api/services') {
+        mockState.services = JSON.parse(jsonString.trim());
+    }
+});
+
 Given('the {string} domain is enabled', (domain) => {
     const enabled = new Set(settings.get_strv('enabled-domains'));
     enabled.add(domain);
@@ -134,6 +154,12 @@ When('the user activates the result {string}', async (entityId) => {
     await new Promise((resolve) => setTimeout(resolve, 50));
 });
 
+When('the user activates the first search result', async () => {
+    assert.ok(searchResults.length > 0, 'Expected at least one search result to activate');
+    provider.activateResult(searchResults[0], []);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+});
+
 When('the overview requests metadata for the results', async () => {
     metadataResults = await provider.getResultMetas(searchResults, new Gio.Cancellable());
 });
@@ -145,6 +171,30 @@ When('the user launches the search provider', () => {
 Then('the search results should be:', (dataTable) => {
     const expected = dataTable.raw().map((row) => row[0]);
     assert.deepEqual(searchResults, expected);
+});
+
+Then('the search results should contain {string}', (expectedId) => {
+    assert.ok(
+        searchResults.includes(expectedId),
+        `Expected search results to contain "${expectedId}", but got: ${JSON.stringify(searchResults)}`
+    );
+});
+
+Then('the search results should include actions for {string}:', (entityId, dataTable) => {
+    for (const expectedRow of dataTable.hashes()) {
+        const meta = metadataResults.find((m) => m.id === expectedRow.id);
+        assert.ok(
+            meta,
+            `Expected metadata for action "${expectedRow.id}", but available results were: ${JSON.stringify(metadataResults.map((m) => ({ id: m.id, name: m.name, description: m.description })))}`
+        );
+        if (expectedRow.name) {
+            assert.equal(meta.name, expectedRow.name);
+        }
+        if (expectedRow.description) {
+            assert.equal(meta.description, expectedRow.description);
+        }
+        assert.equal(meta.clipboardText, entityId);
+    }
 });
 
 Then('the search results should be empty', () => {

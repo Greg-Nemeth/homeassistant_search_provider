@@ -3,6 +3,8 @@ import St from "gi://St";
 import Gio from "gi://Gio";
 import GioUnix from "gi://GioUnix";
 import GLib from "gi://GLib";
+import QueryParser from "./QueryParser.js";
+import ActionRegistry from "./ActionRegistry.js";
 
 export default class SearchProvider {
     constructor(opts) {
@@ -13,6 +15,8 @@ export default class SearchProvider {
         this._text_decoder = new TextDecoder();
         this._settings = opts.settings;
         this._entityCache = new Map();
+        this._actionCache = new Map();
+        this._servicesCache = null;
         this._ensureDesktopFile();
     }
 
@@ -58,6 +62,9 @@ export default class SearchProvider {
         }
         this._entityCache?.clear();
         this._entityCache = null;
+        this._actionCache?.clear();
+        this._actionCache = null;
+        this._servicesCache = null;
         this._settings = null;
         this._extension = null;
     }
@@ -108,21 +115,36 @@ export default class SearchProvider {
     }
 
     activateResult(result, terms) {
+        const cachedAction = this._actionCache?.get(result);
+        const parsedAction = cachedAction || ActionRegistry.parseActionId(result);
 
-        // result is "light.loft_lavalamp"
-        const [domain] = result.split(".");
+        let domain;
+        let service;
+        let serviceData;
 
-        this.fetch(`${this.haUrl}/api/services/${domain}/toggle`, {
+        if (parsedAction) {
+            domain = parsedAction.domain;
+            service = parsedAction.service;
+            serviceData = parsedAction.serviceData;
+        } else {
+            const cachedEntity = this._entityCache?.get(result) || { entity_id: result };
+            const defaultAction = ActionRegistry.getDefaultAction(cachedEntity);
+            domain = defaultAction.domain;
+            service = defaultAction.service;
+            serviceData = defaultAction.serviceData;
+        }
+
+        this.fetch(`${this.haUrl}/api/services/${domain}/${service}`, {
             method: "POST",
             headers: [
                 ["Authorization", `Bearer ${this.haToken}`],
                 ["Content-Type", "application/json"],
             ],
             cancellable: Gio.Cancellable.get_current(),
-            body: { entity_id: result },
+            body: serviceData,
         })
-            .then((res) => console.debug(`Successfully toggled ${result}:`, res))
-            .catch((err) => console.error(`Failed to toggle ${result}:`, err));
+            .then((res) => console.debug(`Successfully called ${domain}.${service} on ${result}:`, res))
+            .catch((err) => console.error(`Failed to call ${domain}.${service} on ${result}:`, err));
     }
 
     createResultObject(meta) {
@@ -136,6 +158,23 @@ export default class SearchProvider {
             );
 
             const resultMetas = results.map((resultId) => {
+                const action = this._actionCache?.get(resultId);
+                if (action) {
+                    const entity = this._entityCache?.get(action.entityId);
+                    const baseName = entity?.friendly_name || action.entityId;
+                    return {
+                        id: resultId,
+                        name: `${baseName} → ${action.label}`,
+                        description: action.description,
+                        clipboardText: action.entityId,
+                        createIcon: (size) =>
+                            new St.Icon({
+                                icon_name: "dialog-information",
+                                icon_size: size,
+                            }),
+                    };
+                }
+
                 const entity = this._entityCache?.get(resultId);
                 return {
                     id: resultId,
@@ -160,38 +199,87 @@ export default class SearchProvider {
         });
     }
 
-    getInitialResultSet(terms, cancellable) {
-        const lowerTerms = terms.map((t) => t.toLowerCase());
-        const enabledDomains = this._settings.get_strv("enabled-domains");
+    _ensureServicesCatalog(cancellable) {
+        if (this._servicesCache) {
+            return Promise.resolve(this._servicesCache);
+        }
 
-        return this.fetch(`${this.haUrl}/api/states`, {
+        return this.fetch(`${this.haUrl}/api/services`, {
             method: "GET",
             headers: [["Authorization", `Bearer ${this.haToken}`]],
             cancellable: cancellable,
         })
-            .then((response) => JSON.parse(response))
-            .then((array) => {
+            .then((response) => {
+                const parsed = JSON.parse(response);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    const catalog = {};
+                    for (const entry of parsed) {
+                        if (entry && entry.domain && entry.services) {
+                            catalog[entry.domain] = entry.services;
+                        }
+                    }
+                    this._servicesCache = catalog;
+                    return catalog;
+                }
+                return null;
+            })
+            .catch(() => null);
+    }
+
+    getInitialResultSet(terms, cancellable) {
+        const parsedQuery = QueryParser.parse(terms);
+        const enabledDomains = this._settings.get_strv("enabled-domains");
+
+        const statesPromise = this.fetch(`${this.haUrl}/api/states`, {
+            method: "GET",
+            headers: [["Authorization", `Bearer ${this.haToken}`]],
+            cancellable: cancellable,
+        }).then((response) => JSON.parse(response));
+
+        const servicesPromise = parsedQuery.hasAction
+            ? this._ensureServicesCatalog(cancellable)
+            : Promise.resolve(this._servicesCache);
+
+        return Promise.all([statesPromise, servicesPromise])
+            .then(([array, servicesCatalog]) => {
                 if (cancellable.is_cancelled()) {
                     throw new Error("Search Cancelled");
                 }
 
-                return array
+                const matchedEntities = array
                     .filter((e) =>
                         enabledDomains.includes(e.entity_id.split(".")[0]),
                     )
-                    .filter((id) =>
-                        lowerTerms.every((term) =>
-                            id.entity_id.toLowerCase().includes(term),
-                        ),
-                    )
-                    .map((r) => {
-                        this._entityCache?.set(r.entity_id, {
-                            entity_id: r.entity_id,
-                            friendly_name: r.attributes?.friendly_name,
-                            state: r.state,
-                        });
-                        return r.entity_id;
+                    .filter((e) =>
+                        QueryParser.matchesEntity(e, parsedQuery.entityTerms),
+                    );
+
+                for (const r of matchedEntities) {
+                    this._entityCache?.set(r.entity_id, {
+                        entity_id: r.entity_id,
+                        friendly_name: r.attributes?.friendly_name,
+                        state: r.state,
+                        attributes: r.attributes || {},
                     });
+                }
+
+                if (!parsedQuery.hasAction) {
+                    return matchedEntities.map((r) => r.entity_id);
+                }
+
+                const actionIds = [];
+                for (const entity of matchedEntities) {
+                    const actions = ActionRegistry.resolveActions(
+                        entity,
+                        parsedQuery,
+                        servicesCatalog,
+                    );
+                    for (const action of actions) {
+                        this._actionCache?.set(action.id, action);
+                        actionIds.push(action.id);
+                    }
+                }
+                return actionIds;
             })
             .catch((err) => {
                 if (!cancellable.is_cancelled()) {

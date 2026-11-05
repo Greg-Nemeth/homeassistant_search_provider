@@ -74,6 +74,8 @@ export class MockSession {
             let responseData = '[]';
             if (message.url.endsWith('/api/states')) {
                 responseData = JSON.stringify(mockState.entities);
+            } else if (message.url.endsWith('/api/services')) {
+                responseData = JSON.stringify(mockState.services);
             } else if (message.url.includes('/api/services/')) {
                 responseData = JSON.stringify({ message: 'Service called' });
             }
